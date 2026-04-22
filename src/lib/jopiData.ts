@@ -30,10 +30,10 @@ export const PLACE = {
     guestsEnjoyed: ["Jedzenie i picie", "Sztuka", "Zakupy"],
     whatsNearby: [
       { name: "Pałac Biskupi", distance: "400 m" },
-      { name: "Archdiocese Museum", distance: "450 m" },
+      { name: "Muzeum Archidiecezjalne", distance: "450 m" },
       { name: "Zespół Kościoła Par. PW. św. Jadwigi", distance: "450 m" },
       { name: "Kamienica Dra Wędlikowskiego", distance: "600 m" },
-      { name: "Historical Museum of Katowice", distance: "750 m" },
+      { name: "Muzeum Historii Katowic", distance: "750 m" },
       { name: "Gmach Banku", distance: "800 m" },
       { name: "Zespół Pałacu Młodzieży", distance: "800 m" },
       { name: "Akad. Muzyczna im. Szymanowskiego", distance: "850 m" },
@@ -41,27 +41,27 @@ export const PLACE = {
       { name: "Kamiennica", distance: "1 km" },
     ],
     restaurants: [
-      { name: "Restaurant Coffee-Jka", distance: "20 m" },
-      { name: "Restaurant Bar & Bistro Magiel", distance: "50 m" },
-      { name: "Restaurant Pierogi Świata", distance: "100 m" },
+      { name: "Restauracja Coffee-Jka", distance: "20 m" },
+      { name: "Restauracja Bar & Bistro Magiel", distance: "50 m" },
+      { name: "Restauracja Pierogi Świata", distance: "100 m" },
     ],
     topAttractions: [
-      { name: "Silesian Insurgents Monument", distance: "1.2 km" },
-      { name: "Silesian Museum", distance: "2 km" },
-      { name: "Katowice Forest Park", distance: "3.1 km" },
-      { name: "Silesia Park", distance: "5 km" },
+      { name: "Pomnik Powstańców Śląskich", distance: "1,2 km" },
+      { name: "Muzeum Śląskie", distance: "2 km" },
+      { name: "Katowicki Park Leśny", distance: "3,1 km" },
+      { name: "Park Śląski", distance: "5 km" },
     ],
     naturalBeauty: [
-      { name: "Forest Las Murckowski Nature Reserve", distance: "10 km" },
+      { name: "Las Rezerwat Przyrody Las Murckowski", distance: "10 km" },
     ],
     transport: [
-      { name: "Train Katowice Railway Station", distance: "700 m" },
-      { name: "Train Katowice Train Station", distance: "950 m" },
+      { name: "Pociąg Dworzec PKP Katowice", distance: "700 m" },
+      { name: "Pociąg Dworzec kolejowy w Katowicach", distance: "950 m" },
     ],
     airports: [
-      { name: "Katowice Airport", distance: "29 km" },
-      { name: "John Paul II International Airport Kraków–Balice", distance: "62 km" },
-      { name: "Ostrava Leos Janacek Airport", distance: "99 km" },
+      { name: "Lotnisko Katowice-Pyrzowice", distance: "29 km" },
+      { name: "Lotnisko Kraków-Balice", distance: "62 km" },
+      { name: "Lotnisko Ostrawa", distance: "99 km" },
     ]
   },
   nearby: [

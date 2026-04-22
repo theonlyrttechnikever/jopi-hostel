@@ -111,20 +111,20 @@ export function LocationBlock() {
 
         {PLACE.surroundings.guestsEnjoyed && (
           <div className="mb-10 flex flex-wrap gap-4 items-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Goście doceniają tę okolicę za:</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Goście lubią tę okolicę ze względu na:</span>
             {PLACE.surroundings.guestsEnjoyed.map((item, idx) => (
               <span key={idx} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-zinc-200 text-sm font-bold text-zinc-800 shadow-sm">
                 <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                 {item}
               </span>
             ))}
-            <span className="text-sm font-medium text-zinc-500 italic ml-2">Goście uwielbiają spacery po okolicy!</span>
+            <span className="text-sm font-medium text-zinc-500 italic ml-2">Gościom bardzo podoba się okolica obiektu!</span>
           </div>
         )}
 
         <div className="grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           <SurroundingSection 
-            title="Co jest w pobliżu" 
+            title="Co znajduje się w pobliżu" 
             icon={MapPin} 
             items={PLACE.surroundings.whatsNearby} 
           />
@@ -134,7 +134,7 @@ export function LocationBlock() {
             items={PLACE.surroundings.restaurants} 
           />
           <SurroundingSection 
-            title="Największe atrakcje" 
+            title="Najlepsze atrakcje" 
             icon={Star} 
             items={PLACE.surroundings.topAttractions} 
           />
@@ -149,7 +149,7 @@ export function LocationBlock() {
             items={PLACE.surroundings.airports} 
           />
           <SurroundingSection 
-            title="Piękno natury" 
+            title="Przyroda" 
             icon={Mountain} 
             items={PLACE.surroundings.naturalBeauty} 
           />
