@@ -315,49 +315,6 @@ function parseFeatures(html: string): string[] {
   return features
 }
 
-// In-memory cache for server-side (Vercel)
-const serverCache: Record<string, { data: any; timestamp: number }> = {}
-
-function getCachedBookingData(): BookingData | null {
-  // Try server-side cache first
-  const cachedServer = serverCache[BOOKING_CACHE_KEY]
-  if (cachedServer && Date.now() - cachedServer.timestamp < BOOKING_CACHE_TTL) {
-    return cachedServer.data
-  }
-
-  // Fallback to localStorage if in browser
-  if (typeof window !== 'undefined') {
-    try {
-      const cached = localStorage.getItem(BOOKING_CACHE_KEY)
-      if (cached) {
-        const data: BookingData = JSON.parse(cached)
-        const age = Date.now() - new Date(data.lastUpdated).getTime()
-        if (age < BOOKING_CACHE_TTL) {
-          return data
-        }
-      }
-    } catch (error) {
-      console.error('Error parsing local cached booking data:', error)
-    }
-  }
-
-  return null
-}
-
-function setCachedBookingData(data: BookingData): void {
-  // Update server-side cache
-  serverCache[BOOKING_CACHE_KEY] = { data, timestamp: Date.now() }
-
-  // Update localStorage if in browser
-  if (typeof window !== 'undefined') {
-    try {
-      localStorage.setItem(BOOKING_CACHE_KEY, JSON.stringify(data))
-    } catch (error) {
-      console.error('Error caching booking data locally:', error)
-    }
-  }
-}
-
 function parseStars(html: string): number | undefined {
   // Logic from Python script: data-testid="rating-stars"
   const starsBlockMatch = html.match(/data-testid="rating-stars"([\s\S]*?)<\/div>/)
