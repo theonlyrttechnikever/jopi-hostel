@@ -59,6 +59,7 @@ export async function fetchAgodaData(): Promise<AgodaData> {
     }
 
     // Scrape from Agoda
+    console.log('Fetching from Agoda...')
     const agodaData = await scrapeAgoda()
 
     // Store in cache
@@ -236,16 +237,46 @@ async function scrapeAgoda(): Promise<AgodaData> {
   }
 }
 
-// Simple in-memory cache for development
-let cache: { data: AgodaData; timestamp: number } | null = null
+// In-memory cache for server-side (Vercel)
+const serverCache: Record<string, { data: any; timestamp: number }> = {}
+const AGODA_CACHE_KEY = 'agoda_data_cache'
 
 function getCachedAgodaData(): AgodaData | null {
-  if (cache && Date.now() - cache.timestamp < AGODA_CACHE_TTL) {
-    return cache.data
+  // Try server-side cache first
+  const cachedServer = serverCache[AGODA_CACHE_KEY]
+  if (cachedServer && Date.now() - cachedServer.timestamp < AGODA_CACHE_TTL) {
+    return cachedServer.data
   }
+
+  // Fallback to localStorage if in browser
+  if (typeof window !== 'undefined') {
+    try {
+      const cached = localStorage.getItem(AGODA_CACHE_KEY)
+      if (cached) {
+        const data: AgodaData = JSON.parse(cached)
+        const age = Date.now() - new Date(data.lastUpdated).getTime()
+        if (age < AGODA_CACHE_TTL) {
+          return data
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing local cached agoda data:', error)
+    }
+  }
+
   return null
 }
 
-function setCachedAgodaData(data: AgodaData) {
-  cache = { data, timestamp: Date.now() }
+function setCachedAgodaData(data: AgodaData): void {
+  // Update server-side cache
+  serverCache[AGODA_CACHE_KEY] = { data, timestamp: Date.now() }
+
+  // Update localStorage if in browser
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(AGODA_CACHE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error('Error caching agoda data locally:', error)
+    }
+  }
 }

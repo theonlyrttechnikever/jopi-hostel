@@ -65,14 +65,20 @@ async function scrapeBookingCom(): Promise<BookingData> {
 
   try {
     // Attempt to fetch from Booking.com first
+    console.log('Fetching from Booking.com:', bookingUrl)
     const response = await fetch(bookingUrl, {
       headers: {
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'en-GB,en;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
       },
     })
 
@@ -312,33 +318,46 @@ function parseFeatures(html: string): string[] {
   return features
 }
 
+// In-memory cache for server-side (Vercel)
+const serverCache: Record<string, { data: any; timestamp: number }> = {}
+
 function getCachedBookingData(): BookingData | null {
-  if (typeof window === 'undefined') return null
+  // Try server-side cache first
+  const cachedServer = serverCache[BOOKING_CACHE_KEY]
+  if (cachedServer && Date.now() - cachedServer.timestamp < BOOKING_CACHE_TTL) {
+    return cachedServer.data
+  }
 
-  const cached = localStorage.getItem(BOOKING_CACHE_KEY)
-  if (!cached) return null
-
-  try {
-    const data: BookingData = JSON.parse(cached)
-    const age = Date.now() - new Date(data.lastUpdated).getTime()
-
-    if (age < BOOKING_CACHE_TTL) {
-      return data
+  // Fallback to localStorage if in browser
+  if (typeof window !== 'undefined') {
+    try {
+      const cached = localStorage.getItem(BOOKING_CACHE_KEY)
+      if (cached) {
+        const data: BookingData = JSON.parse(cached)
+        const age = Date.now() - new Date(data.lastUpdated).getTime()
+        if (age < BOOKING_CACHE_TTL) {
+          return data
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing local cached booking data:', error)
     }
-  } catch (error) {
-    console.error('Error parsing cached booking data:', error)
   }
 
   return null
 }
 
 function setCachedBookingData(data: BookingData): void {
-  if (typeof window === 'undefined') return
+  // Update server-side cache
+  serverCache[BOOKING_CACHE_KEY] = { data, timestamp: Date.now() }
 
-  try {
-    localStorage.setItem(BOOKING_CACHE_KEY, JSON.stringify(data))
-  } catch (error) {
-    console.error('Error caching booking data:', error)
+  // Update localStorage if in browser
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(BOOKING_CACHE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error('Error caching booking data locally:', error)
+    }
   }
 }
 

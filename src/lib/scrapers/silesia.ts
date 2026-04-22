@@ -179,33 +179,46 @@ function parseCalendarFromHTML(html: string): CalendarDay[] {
   return calendar
 }
 
+// In-memory cache for server-side (Vercel)
+const serverCache: Record<string, { data: any; timestamp: number }> = {}
+
 function getCachedCalendar(): SilesiasCalendarData | null {
-  if (typeof window === 'undefined') return null
+  // Try server-side cache first
+  const cachedServer = serverCache[CACHE_KEY]
+  if (cachedServer && Date.now() - cachedServer.timestamp < CACHE_TTL) {
+    return cachedServer.data
+  }
 
-  const cached = localStorage.getItem(CACHE_KEY)
-  if (!cached) return null
-
-  try {
-    const data: SilesiasCalendarData = JSON.parse(cached)
-    const age = Date.now() - new Date(data.lastUpdated).getTime()
-
-    if (age < CACHE_TTL) {
-      return data
+  // Fallback to localStorage if in browser
+  if (typeof window !== 'undefined') {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY)
+      if (cached) {
+        const data: SilesiasCalendarData = JSON.parse(cached)
+        const age = Date.now() - new Date(data.lastUpdated).getTime()
+        if (age < CACHE_TTL) {
+          return data
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing local cached calendar data:', error)
     }
-  } catch (error) {
-    console.error('Error parsing cached calendar:', error)
   }
 
   return null
 }
 
 function setCachedCalendar(data: SilesiasCalendarData): void {
-  if (typeof window === 'undefined') return
+  // Update server-side cache
+  serverCache[CACHE_KEY] = { data, timestamp: Date.now() }
 
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data))
-  } catch (error) {
-    console.error('Error caching calendar:', error)
+  // Update localStorage if in browser
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error('Error caching calendar data locally:', error)
+    }
   }
 }
 
