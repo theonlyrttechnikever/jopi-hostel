@@ -3,6 +3,8 @@
  * Fetches calendar availability and pricing data from silesia hotels page
  */
 
+import { unstable_cache } from 'next/cache'
+
 export interface CalendarDay {
   date: string // YYYY-MM-DD
   available: boolean
@@ -18,30 +20,25 @@ export interface SilesiasCalendarData {
 }
 
 // Cache with 6h TTL (more frequent updates for availability)
-const CACHE_KEY = 'silesia_calendar_cache'
-const CACHE_TTL = 6 * 60 * 60 * 1000 // 6 hours
+const CACHE_TTL = 6 * 60 * 60 // 6 hours in seconds
 
-export async function fetchSilesiasCalendar(): Promise<SilesiasCalendarData> {
-  try {
-    // Check cache first
-    const cached = getCachedCalendar()
-    if (cached) {
-      return cached
+export const fetchSilesiasCalendar = unstable_cache(
+  async (): Promise<SilesiasCalendarData> => {
+    try {
+      // Attempt to scrape from Silesia Hotels
+      const calendarData = await scrapeSilesiasCalendar()
+      return calendarData
+    } catch (error) {
+      console.error('Error fetching Silesias calendar:', error)
+      return getEmptyCalendar()
     }
-
-    // Attempt to scrape from Silesia Hotels
-    const calendarData = await scrapeSilesiasCalendar()
-
-    // Store in cache
-    setCachedCalendar(calendarData)
-
-    return calendarData
-  } catch (error) {
-    console.error('Error fetching Silesias calendar:', error)
-    // Return cached data even if expired, or empty calendar
-    return getCachedCalendar() || getEmptyCalendar()
+  },
+  ['silesia-calendar'],
+  {
+    revalidate: CACHE_TTL,
+    tags: ['silesia']
   }
-}
+)
 
 async function scrapeSilesiasCalendar(): Promise<SilesiasCalendarData> {
   const silesiasUrl = 'https://jopi-hostel-centrum.silesiahotelspage.com/pl/'

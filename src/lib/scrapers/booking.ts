@@ -3,6 +3,8 @@
  * Fetches real ratings, today's price, and booking features
  */
 
+import { unstable_cache } from 'next/cache'
+
 export interface BookingData {
   lastUpdated: string
   rating: {
@@ -23,40 +25,35 @@ export interface BookingData {
 }
 
 const BOOKING_CACHE_KEY = 'booking_data_cache'
-const BOOKING_CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
+const BOOKING_CACHE_TTL = 24 * 60 * 60 // 24 hours in seconds for next/cache
 
-export async function fetchBookingData(): Promise<BookingData> {
-  try {
-    // Check cache first
-    const cached = getCachedBookingData()
-    if (cached) {
-      return cached
-    }
-
-    // Scrape from Booking.com
-    const bookingData = await scrapeBookingCom()
-
-    // Store in cache
-    setCachedBookingData(bookingData)
-
-    return bookingData
-  } catch (error) {
-    console.error('Error fetching Booking.com data:', error)
-    // Return cached data or defaults
-    return (
-      getCachedBookingData() || {
+export const fetchBookingData = unstable_cache(
+  async (): Promise<BookingData> => {
+    try {
+      // Scrape from Booking.com
+      const bookingData = await scrapeBookingCom()
+      return bookingData
+    } catch (error) {
+      console.error('Error fetching Booking.com data:', error)
+      // Return defaults on failure
+      return {
         lastUpdated: new Date().toISOString(),
         rating: {
           score: 7.4,
-          reviews: 1542,
-          location: 9.0,
-          couplesLocation: 9.2,
+          reviews: 135,
+          location: 9.3,
+          couplesLocation: 9.4,
         },
-        features: [],
+        features: ['Bezpłatne Wi-Fi', 'Pokoje dla niepalących', 'Ogrzewanie', 'Winda'],
       }
-    )
+    }
+  },
+  ['booking-data'],
+  {
+    revalidate: BOOKING_CACHE_TTL,
+    tags: ['booking']
   }
-}
+)
 
 async function scrapeBookingCom(): Promise<BookingData> {
   const bookingUrl =

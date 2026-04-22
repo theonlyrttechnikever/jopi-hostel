@@ -31,6 +31,8 @@ export interface AgodaReview {
   source: 'Agoda' | 'Booking.com'
 }
 
+import { unstable_cache } from 'next/cache'
+
 export interface AgodaData {
   lastUpdated: string
   rating: {
@@ -47,64 +49,33 @@ export interface AgodaData {
   reviews: AgodaReview[]
 }
 
-// const AGODA_CACHE_KEY = 'agoda_data_cache'
-const AGODA_CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
+const AGODA_CACHE_TTL = 24 * 60 * 60 // 24 hours in seconds
 
-export async function fetchAgodaData(): Promise<AgodaData> {
-  try {
-    // Check cache first
-    const cached = getCachedAgodaData()
-    if (cached) {
-      return cached
-    }
-
-    // Scrape from Agoda
-    console.log('Fetching from Agoda...')
-    const agodaData = await scrapeAgoda()
-
-    // Store in cache
-    setCachedAgodaData(agodaData)
-
-    return agodaData
-  } catch (error) {
-    console.error('Error fetching Agoda data:', error)
-    // Return cached data or defaults
-    return (
-      getCachedAgodaData() || {
+export const fetchAgodaData = unstable_cache(
+  async (): Promise<AgodaData> => {
+    try {
+      // Scrape from Agoda
+      console.log('Fetching from Agoda...')
+      const agodaData = await scrapeAgoda()
+      return agodaData
+    } catch (error) {
+      console.error('Error fetching Agoda data:', error)
+      return {
         lastUpdated: new Date().toISOString(),
-        rating: {
-          score: 8.0,
-          reviews: 1543,
-        },
-        stars: 2,
-        price: {
-          total: 40.72,
-          tax: 3.02,
-          currency: 'USD',
-        },
-        amenities: ['Wi-Fi', 'Shared Kitchen', 'Shared Lounge'],
-        reviews: [
-          {
-            author: 'Oliwia',
-            date: '12 listopada 2024',
-            score: 7.0,
-            positive: 'Przemiłe wiadomości z osobą od PRu ;) jasna instrukcja za- i wymeldowania, obsługa bezosobowa, co bardzo sobie cenię.',
-            negative: 'BRAK MIKROFALÓWKI!!! Cienkie ściany, dwoje chłopów rozmawiających w pokoju obok sprawiało wrażenie, jakby mieli otwarte drzwi.',
-            source: 'Booking.com'
-          },
-          {
-            author: 'Filip',
-            date: '06 sierpnia 2025',
-            score: 9.0,
-            positive: 'Lokalizacja, cicho, spokojnie i blisko centrum oraz sklepu. Miły personel i pomocny.',
-            negative: 'Mały pokój, ale byłem na 1 nocą i tylko spać, więc nie przeszkadzało to :)',
-            source: 'Booking.com'
-          }
-        ],
+        rating: { score: 7.4, reviews: 0 },
+        stars: 0,
+        price: { total: 0, tax: 0, currency: 'PLN' },
+        amenities: [],
+        reviews: [],
       }
-    )
+    }
+  },
+  ['agoda-data'],
+  {
+    revalidate: AGODA_CACHE_TTL,
+    tags: ['agoda']
   }
-}
+)
 
 async function scrapeAgoda(): Promise<AgodaData> {
   const tomorrow = new Date()
