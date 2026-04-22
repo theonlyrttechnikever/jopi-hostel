@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { Copy, ExternalLink } from "lucide-react"
+import { Copy, ExternalLink, Phone } from "lucide-react"
 import { LINKS, PLACE } from "../lib/jopiData"
 
 export function Contact() {
@@ -20,9 +20,24 @@ export function Contact() {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <p className="text-sm font-semibold text-zinc-900">Adres</p>
-        <p className="mt-2 text-sm leading-7 text-zinc-700">{PLACE.address}</p>
-        <div className="mt-4 flex flex-wrap gap-3">
+        <p className="text-sm font-semibold text-zinc-900">Kontakt i Adres</p>
+        <div className="mt-4 space-y-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">Telefon</p>
+            <a 
+              href={`tel:${PLACE.phone.replace(/\s/g, '')}`}
+              className="mt-1 flex items-center gap-2 text-lg font-black text-zinc-900 hover:text-blue-600 transition-colors"
+            >
+              <Phone className="h-5 w-5" />
+              {PLACE.phone}
+            </a>
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">Adres</p>
+            <p className="mt-1 text-sm leading-7 text-zinc-700">{PLACE.address}</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={copyAddress}

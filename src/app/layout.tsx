@@ -106,7 +106,7 @@ export default function RootLayout({
               "image": "https://jopihostel.pl/images/outside-sign.png",
               "@id": "https://jopihostel.pl",
               "url": "https://jopihostel.pl",
-              "telephone": "+48 32 201 02 01",
+              "telephone": "+48 32 204 34 32",
               "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "Plebiscytowa 23",

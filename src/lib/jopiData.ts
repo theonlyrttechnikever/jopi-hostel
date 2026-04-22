@@ -23,8 +23,47 @@ export const LINKS = {
 export const PLACE = {
   name: "Jopi Hostel Katowice Centrum",
   address: "Plebiscytowa 23, 40-063 Katowice, Polska",
+  phone: "+48 32 204 34 32",
   checkIn: "15:00–00:00",
   checkOut: "do 11:00",
+  surroundings: {
+    guestsEnjoyed: ["Jedzenie i picie", "Sztuka", "Zakupy"],
+    whatsNearby: [
+      { name: "Pałac Biskupi", distance: "400 m" },
+      { name: "Archdiocese Museum", distance: "450 m" },
+      { name: "Zespół Kościoła Par. PW. św. Jadwigi", distance: "450 m" },
+      { name: "Kamienica Dra Wędlikowskiego", distance: "600 m" },
+      { name: "Historical Museum of Katowice", distance: "750 m" },
+      { name: "Gmach Banku", distance: "800 m" },
+      { name: "Zespół Pałacu Młodzieży", distance: "800 m" },
+      { name: "Akad. Muzyczna im. Szymanowskiego", distance: "850 m" },
+      { name: "Zespół Kościoła Ewang. -Augsburskiego", distance: "950 m" },
+      { name: "Kamiennica", distance: "1 km" },
+    ],
+    restaurants: [
+      { name: "Restaurant Coffee-Jka", distance: "20 m" },
+      { name: "Restaurant Bar & Bistro Magiel", distance: "50 m" },
+      { name: "Restaurant Pierogi Świata", distance: "100 m" },
+    ],
+    topAttractions: [
+      { name: "Silesian Insurgents Monument", distance: "1.2 km" },
+      { name: "Silesian Museum", distance: "2 km" },
+      { name: "Katowice Forest Park", distance: "3.1 km" },
+      { name: "Silesia Park", distance: "5 km" },
+    ],
+    naturalBeauty: [
+      { name: "Forest Las Murckowski Nature Reserve", distance: "10 km" },
+    ],
+    transport: [
+      { name: "Train Katowice Railway Station", distance: "700 m" },
+      { name: "Train Katowice Train Station", distance: "950 m" },
+    ],
+    airports: [
+      { name: "Katowice Airport", distance: "29 km" },
+      { name: "John Paul II International Airport Kraków–Balice", distance: "62 km" },
+      { name: "Ostrava Leos Janacek Airport", distance: "99 km" },
+    ]
+  },
   nearby: [
     "Dworzec PKP Katowice — ok. 700 m pieszo",
     "Uniwersytet Śląski",
