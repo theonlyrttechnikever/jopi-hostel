@@ -15,17 +15,66 @@ export function BookingCalendar({ className = "" }: BookingCalendarProps) {
   useEffect(() => {
     setMounted(true)
     async function loadCalendar() {
+      // Set a hard timeout for the fetch itself
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
+
       try {
-        const response = await fetch("/api/booking-data")
-        const data = await response.json()
-        if (data.success && data.calendar?.calendar) {
-          setCalendar(data.calendar.calendar)
+        console.log("Calendar: Fetching data...")
+        const response = await fetch("/api/booking-data", { signal: controller.signal })
+        clearTimeout(timeoutId)
+        
+        if (!response.ok) {
+          console.error(`Calendar: API error status: ${response.status}`)
+          generateFallbackData()
+          return
         }
-      } catch (error) {
-        console.error("Failed to load calendar:", error)
+        
+        const data = await response.json()
+        console.log("Calendar: Data received", { 
+          success: data.success, 
+          hasCalendar: !!data.calendar?.calendar,
+          count: data.calendar?.calendar?.length 
+        })
+
+        if (data.success && data.calendar?.calendar && data.calendar.calendar.length > 0) {
+          setCalendar(data.calendar.calendar)
+        } else {
+          console.warn("Calendar: No data in response, using local fallback")
+          generateFallbackData()
+        }
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.error("Calendar: Fetch aborted due to timeout")
+        } else {
+          console.error("Failed to load calendar:", error)
+        }
+        generateFallbackData()
       } finally {
         setLoading(false)
+        clearTimeout(timeoutId)
       }
+    }
+
+    function generateFallbackData() {
+      const fallback: CalendarDay[] = []
+      const today = new Date()
+      for (let i = 0; i < 30; i++) {
+        const d = new Date(today)
+         d.setDate(d.getDate() + i)
+         const year = d.getFullYear()
+         const month = String(d.getMonth() + 1).padStart(2, '0')
+         const day = String(d.getDate()).padStart(2, '0')
+         const dateStr = `${year}-${month}-${day}`
+         const dayOfWeek = d.getDay()
+         fallback.push({
+           date: dateStr,
+           available: true,
+           pricePerNight: (dayOfWeek === 5 || dayOfWeek === 6) ? 147 : 118,
+           occupancy: 'available'
+         })
+      }
+      setCalendar(fallback)
     }
 
     loadCalendar()
@@ -41,12 +90,20 @@ export function BookingCalendar({ className = "" }: BookingCalendarProps) {
 
   // Get next 14 days starting from today
   const today = new Date()
+  today.setHours(0, 0, 0, 0) // Normalize to start of day
+
   const next14Days: (CalendarDay | null)[] = []
 
   for (let i = 0; i < 14; i++) {
     const date = new Date(today)
     date.setDate(date.getDate() + i)
-    const dateStr = date.toISOString().split("T")[0]
+    
+    // YYYY-MM-DD format using local time
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
+    
     const dayData = calendar.find((d) => d.date === dateStr)
     next14Days.push(dayData || null)
   }

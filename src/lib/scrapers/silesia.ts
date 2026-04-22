@@ -56,12 +56,14 @@ async function scrapeSilesiasCalendar(): Promise<SilesiasCalendarData> {
     }
 
     const html = await response.text()
+    console.log(`Silesia: Fetched HTML length: ${html.length}`)
 
     // Extract calendar data from page
     const calendarData = parseCalendarFromHTML(html)
+    console.log(`Silesia: Parsed ${calendarData.length} days`)
 
     if (calendarData.length === 0) {
-      console.warn('Silesia calendar parsed 0 days. Returning fallback.')
+      console.warn('Silesia calendar parsed 0 days. HTML sample:', html.substring(0, 200))
       return getEmptyCalendar()
     }
 
@@ -200,7 +202,7 @@ function getEmptyCalendar(): SilesiasCalendarData {
     }
 
     calendar.push({
-      date: date.toISOString().split('T')[0],
+      date: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
       available: true,
       pricePerNight: price,
       occupancy: 'available',
