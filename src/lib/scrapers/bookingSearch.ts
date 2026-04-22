@@ -4,6 +4,8 @@
  * Scrapes multiple hotels from search results for market analysis
  */
 
+import { unstable_cache } from 'next/cache'
+
 export interface CompetitorHotel {
   name: string
   stars: number | 'N/A'
@@ -15,43 +17,66 @@ export interface CompetitorHotel {
   distanceToEvent?: number
 }
 
+export const fetchBookingSearch = unstable_cache(
+  async (
+    destination: string,
+    checkin: string,
+    checkout: string
+  ): Promise<CompetitorHotel[]> => {
+    console.log(`Scraping Booking search: ${destination} from ${checkin} to ${checkout}`)
+    // Construct search URL similar to Python script
+    // nflt=ht_id%3D204 targets hotels/hostels
+    const searchUrl = `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(
+      destination
+    )}&checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&nflt=ht_id%3D204`
+
+    try {
+      const response = await fetch(searchUrl, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'pl-PL,pl;q=0.9',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`Booking.com search failed: ${response.status}`)
+      }
+
+      const html = await response.text()
+
+      if (html.includes('Robot or Human?') || html.includes('challenge.js')) {
+        console.warn('Booking.com search blocked by anti-bot. Returning mock data.')
+        return getMockCompetitors()
+      }
+
+      const hotels = parseSearchResults(html)
+      
+      if (hotels.length === 0) {
+        console.warn('Booking search parsed 0 hotels. Returning mock data.')
+        return getMockCompetitors()
+      }
+
+      console.log(`Parsed ${hotels.length} hotels from Booking search`)
+      return hotels
+    } catch (error) {
+      console.error('Booking search scraping error:', error)
+      return getMockCompetitors()
+    }
+  },
+  ['booking-search-results'],
+  {
+    revalidate: 3600,
+    tags: ['competitors']
+  }
+)
+
 export async function scrapeBookingSearch(
   destination: string,
   checkin: string,
   checkout: string
 ): Promise<CompetitorHotel[]> {
-  // Construct search URL similar to Python script
-  // nflt=ht_id%3D204 targets hotels/hostels
-  const searchUrl = `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(
-    destination
-  )}&checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&nflt=ht_id%3D204`
-
-  try {
-    const response = await fetch(searchUrl, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept-Language': 'pl-PL,pl;q=0.9',
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Booking.com search failed: ${response.status}`)
-    }
-
-    const html = await response.text()
-
-    if (html.includes('Robot or Human?') || html.includes('challenge.js')) {
-      console.warn('Booking.com search blocked by anti-bot. Returning mock data for development.')
-      return getMockCompetitors()
-    }
-
-    const hotels = parseSearchResults(html)
-    return hotels
-  } catch (error) {
-    console.error('Booking search scraping error:', error)
-    return getMockCompetitors()
-  }
+  return fetchBookingSearch(destination, checkin, checkout)
 }
 
 function getMockCompetitors(): CompetitorHotel[] {

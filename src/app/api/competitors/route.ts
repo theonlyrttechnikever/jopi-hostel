@@ -16,8 +16,11 @@ export async function GET(request: Request) {
   const checkout = searchParams.get('checkout') || dayAfter.toISOString().split('T')[0]
 
   try {
+    console.log(`API: Fetching competitors for ${destination} (${checkin} to ${checkout})`)
     const competitors = await scrapeBookingSearch(destination, checkin, checkout)
     
+    console.log(`API: Found ${competitors.length} competitors`)
+
     return NextResponse.json({
       success: true,
       competitors,

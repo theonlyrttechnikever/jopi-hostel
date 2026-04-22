@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
+    console.log('API: Fetching booking data...')
     // Fetch all in parallel
     const [bookingData, calendarData, agodaData, hostelworldData] = await Promise.all([
       fetchBookingData(),
@@ -16,6 +17,13 @@ export async function GET() {
       fetchAgodaData(),
       fetchHostelworldData(),
     ])
+
+    console.log('API: Data fetched successfully', {
+      hasBooking: !!bookingData,
+      hasCalendar: !!calendarData?.calendar?.length,
+      hasAgoda: !!agodaData,
+      hasHostelworld: !!hostelworldData
+    })
 
     // Logic to decide which data to show in the "Booking.com" UI section
     // If we have real Booking.com data that looks valid (not default/fallback), use it.
