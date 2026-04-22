@@ -1,9 +1,16 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Container } from "./Container"
 import { NAV, PLACE } from "../lib/jopiData"
 
 export function SiteFooter() {
+  const [year, setYear] = useState<number | null>(null)
+
+  useEffect(() => {
+    setYear(new Date().getFullYear())
+  }, [])
+
   return (
     <footer className="border-t border-zinc-200 bg-white py-10">
       <Container>
@@ -31,7 +38,7 @@ export function SiteFooter() {
           <div>
             <p className="text-sm font-semibold text-zinc-900">Informacje</p>
             <p className="mt-2 text-sm leading-7 text-zinc-700">
-              © {new Date().getFullYear()} {PLACE.name}
+              © {year || 2026} {PLACE.name}
             </p>
           </div>
         </div>

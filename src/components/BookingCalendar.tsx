@@ -10,8 +10,10 @@ interface BookingCalendarProps {
 export function BookingCalendar({ className = "" }: BookingCalendarProps) {
   const [calendar, setCalendar] = useState<CalendarDay[]>([])
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     async function loadCalendar() {
       try {
         const response = await fetch("/api/booking-data")
@@ -29,7 +31,7 @@ export function BookingCalendar({ className = "" }: BookingCalendarProps) {
     loadCalendar()
   }, [])
 
-  if (loading) {
+  if (!mounted || loading) {
     return <div className={`text-xs text-zinc-500 ${className}`}>Ładowanie...</div>
   }
 
