@@ -1,3 +1,5 @@
+"use client"
+
 import { Container } from "./Container"
 import { NAV, PLACE } from "../lib/jopiData"
 
