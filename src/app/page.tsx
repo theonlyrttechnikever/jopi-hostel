@@ -84,10 +84,6 @@ export default function Home() {
           <Gallery />
         </Section>
 
-        <Section id="kalendarz" title="Dostępność" eyebrow="Sprawdź wolne terminy">
-          <BookingCalendar />
-        </Section>
-
         <Section id="booking" title="Booking.com" eyebrow="Opinie i dostępność">
           <BookingFeatures />
         </Section>
