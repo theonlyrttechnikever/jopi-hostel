@@ -7,6 +7,7 @@ export const NAV: NavItem[] = [
   { id: "lokalizacja", label: "Lokalizacja" },
   { id: "zasady", label: "Zasady" },
   { id: "galeria", label: "Galeria" },
+  { id: "booking", label: "Opinie" },
   { id: "kontakt", label: "Kontakt" },
 ]
 
@@ -15,6 +16,8 @@ export const LINKS = {
     "https://www.booking.com/hotel/pl/jopi-hostel-katowice.pl.html?force_referer=https%3A%2F%2Fwww.google.com%2F",
   facebook: "https://www.facebook.com/jopi.hostel/?locale=pl_PL",
   silesia: "https://jopi-hostel-centrum.silesiahotelspage.com/pl/",
+  agoda: "https://www.agoda.com/pl-pl/jopi-hostel-katowice-centrum/hotel/all/katowice-pl.html",
+  tripadvisor: "https://www.tripadvisor.com/Hotel_Review-g274768-d2062329-Reviews-Jopi_Hostel-Katowice_Silesia_Province_Southern_Poland.html",
 } as const
 
 export const PLACE = {

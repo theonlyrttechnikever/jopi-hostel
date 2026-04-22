@@ -1,5 +1,4 @@
 import { Amenities } from "../components/Amenities"
-import { BookingCalendar } from "../components/BookingCalendar"
 import { BookingFeatures } from "../components/BookingFeatures"
 import { Contact } from "../components/Contact"
 import { Gallery } from "../components/Gallery"
@@ -43,23 +42,34 @@ export default function Home() {
                 <p className="mt-1 text-sm font-semibold text-zinc-900">{PLACE.checkOut}</p>
               </div>
             </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href={LINKS.booking}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-full bg-zinc-900 px-5 text-sm font-medium text-white hover:bg-zinc-800"
-              >
-                Sprawdź dostępność
-              </a>
-              <a
-                href={LINKS.silesia}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-full border border-zinc-300 bg-white px-5 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
-              >
-                Silesia Hotels
-              </a>
+            <div className="mt-6">
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-zinc-400">Zarezerwuj przez:</p>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href={LINKS.booking}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700"
+                >
+                  Booking.com
+                </a>
+                <a
+                  href={LINKS.agoda}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700"
+                >
+                  Agoda
+                </a>
+                <a
+                  href={LINKS.silesia}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-zinc-300 bg-white px-5 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
+                >
+                  Silesia Hotels
+                </a>
+              </div>
             </div>
           </div>
         </Section>
@@ -84,7 +94,7 @@ export default function Home() {
           <Gallery />
         </Section>
 
-        <Section id="booking" title="Booking.com" eyebrow="Opinie i dostępność">
+        <Section id="booking" title="Dostępność i Opinie" eyebrow="Booking, Agoda & TripAdvisor">
           <BookingFeatures />
         </Section>
 

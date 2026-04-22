@@ -2,6 +2,7 @@ import { fetchBookingData } from '@/lib/scrapers/booking'
 import { fetchSilesiasCalendar } from '@/lib/scrapers/silesia'
 import { fetchAgodaData } from '@/lib/scrapers/agoda'
 import { fetchHostelworldData } from '@/lib/scrapers/hostelworld'
+import { fetchTripAdvisorData } from '@/lib/scrapers/tripadvisor'
 import { NextResponse } from 'next/server'
 
 // Combined booking data endpoint
@@ -11,29 +12,27 @@ export async function GET() {
   try {
     console.log('API: Fetching booking data...')
     
-    // Create a timeout promise
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Request timeout')), 8000) // 8 second total timeout
-    )
-
     // Helper to wrap scraper calls with individual error handling and timeout
     const safeFetch = async <T>(promise: Promise<T>, fallback: T, name: string): Promise<T> => {
+      let timeoutId: NodeJS.Timeout;
       try {
-        // Use individual timeout for each fetch to be safe
-        const result = await Promise.race([
-          promise,
-          new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`${name} timeout`)), 7000))
-        ])
-        return result
+        const timeoutPromise = new Promise<T>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error(`${name} timeout`)), 7000);
+        });
+        
+        const result = await Promise.race([promise, timeoutPromise]);
+        clearTimeout(timeoutId!);
+        return result;
       } catch (e) {
-        console.error(`API: Error or timeout in ${name}:`, e)
-        return fallback
+        if (timeoutId!) clearTimeout(timeoutId);
+        console.error(`API: Error or timeout in ${name}:`, e);
+        return fallback;
       }
     }
 
     // Fetch all with individual fallbacks and timeouts
     // This ensures that even if one hangs or fails, the others (and the overall request) succeed
-    const [bookingData, calendarData, agodaData, hostelworldData] = await Promise.all([
+    const [bookingData, calendarData, agodaData, hostelworldData, tripadvisorData] = await Promise.all([
       safeFetch(fetchBookingData(), {
         lastUpdated: new Date().toISOString(),
         rating: { score: 7.4, reviews: 135, location: 9.3, couplesLocation: 9.4 },
@@ -53,6 +52,11 @@ export async function GET() {
         rating: { score: 8.6, reviews: 693, location: 9.8, couplesLocation: 9.8 },
         features: ['Bezpieczeństwo 24/7', 'Centrum miasta'],
       } as any, 'Hostelworld'),
+      safeFetch(fetchTripAdvisorData(), {
+          lastUpdated: new Date().toISOString(),
+          rating: { score: 6.8, reviews: 37, location: '4.1' },
+          features: ['Bezpłatne Wi-Fi', 'Lokalizacja 4.1'],
+        } as any, 'TripAdvisor'),
     ])
 
     console.log('API: Data fetched (some might be fallbacks)', {
@@ -60,7 +64,8 @@ export async function GET() {
       hasCalendar: !!calendarData?.calendar?.length,
       calendarDays: calendarData?.calendar?.length,
       hasAgoda: !!agodaData,
-      hasHostelworld: !!hostelworldData
+      hasHostelworld: !!hostelworldData,
+      hasTripAdvisor: !!tripadvisorData
     })
 
     // Logic to decide which data to show in the "Booking.com" UI section
@@ -75,6 +80,7 @@ export async function GET() {
         booking: finalBookingData,
         calendar: calendarData,
         agoda: agodaData,
+        tripadvisor: tripadvisorData,
         timestamp: new Date().toISOString(),
       },
       {

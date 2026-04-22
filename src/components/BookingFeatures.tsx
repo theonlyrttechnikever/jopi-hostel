@@ -4,13 +4,16 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import type { BookingData } from "@/lib/scrapers/booking"
 import type { AgodaData } from "@/lib/scrapers/agoda"
+import type { TripAdvisorData } from "@/lib/scrapers/tripadvisor"
+
+import { LINKS } from "../lib/jopiData"
 
 interface BookingFeaturesProps {
   className?: string
 }
 
 export function BookingFeatures({ className = "" }: BookingFeaturesProps) {
-  const [data, setData] = useState<{ booking: BookingData; agoda: AgodaData } | null>(null)
+  const [data, setData] = useState<{ booking: BookingData; agoda: AgodaData; tripadvisor: TripAdvisorData } | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -19,7 +22,11 @@ export function BookingFeatures({ className = "" }: BookingFeaturesProps) {
         const response = await fetch("/api/booking-data")
         const result = await response.json()
         if (result.success) {
-          setData({ booking: result.booking, agoda: result.agoda })
+          setData({ 
+            booking: result.booking, 
+            agoda: result.agoda, 
+            tripadvisor: result.tripadvisor 
+          })
         }
       } catch (error) {
         console.error("Failed to load booking data:", error)
@@ -45,15 +52,15 @@ export function BookingFeatures({ className = "" }: BookingFeaturesProps) {
     return null
   }
 
-  const { booking, agoda } = data
+  const { booking, agoda, tripadvisor } = data
 
-  if (!booking || !agoda) {
+  if (!booking || !agoda || !tripadvisor) {
     return null
   }
 
   return (
     <div className={`space-y-8 ${className}`}>
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-3">
         {/* Live ratings from Booking.com */}
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
@@ -80,12 +87,12 @@ export function BookingFeatures({ className = "" }: BookingFeaturesProps) {
               )}
             </div>
             <a
-              href="https://www.booking.com/hotel/pl/jopi-hostel-katowice.pl.html"
+              href={LINKS.booking}
               target="_blank"
               rel="noreferrer noopener"
               className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
             >
-              Zobacz profil
+              Profil
             </a>
           </div>
 
@@ -107,22 +114,6 @@ export function BookingFeatures({ className = "" }: BookingFeaturesProps) {
                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Liczba opinii</p>
                 <p className="mt-1 text-sm font-bold text-zinc-900">{booking.rating?.reviews?.toLocaleString() || '0'}</p>
               </div>
-            </div>
-
-            {/* Detailed Ratings */}
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {[
-                { label: "Czystość", value: booking.rating?.cleanliness },
-                { label: "Obsługa", value: booking.rating?.service },
-                { label: "Komfort", value: booking.rating?.comfort },
-                { label: "Stosunek ceny", value: booking.rating?.valueForMoney },
-                { label: "Udogodnienia", value: booking.rating?.facilities },
-              ].map((item, i) => item.value && (
-                <div key={i} className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-zinc-50/50 border border-zinc-100/50">
-                  <span className="text-[10px] text-zinc-500 font-medium">{item.label}</span>
-                  <span className="text-[11px] font-black text-zinc-800">{item.value}</span>
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -148,12 +139,12 @@ export function BookingFeatures({ className = "" }: BookingFeaturesProps) {
               </div>
             </div>
             <a
-              href="https://www.agoda.com/jopi-hostel/hotel/katowice-pl.html"
+              href={LINKS.agoda}
               target="_blank"
               rel="noreferrer noopener"
               className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
             >
-              Zobacz profil
+              Profil
             </a>
           </div>
 
@@ -174,6 +165,51 @@ export function BookingFeatures({ className = "" }: BookingFeaturesProps) {
               <div className="rounded-xl border border-zinc-100 p-3">
                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Liczba opinii</p>
                 <p className="mt-1 text-sm font-bold text-zinc-900">{agoda.rating.reviews.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* TripAdvisor Card */}
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Image 
+                src="https://static.tacdn.com/img2/brand_refresh/Tripadvisor_lockup_horizontal_secondary_registered.svg" 
+                alt="TripAdvisor" 
+                width={100}
+                height={20}
+                style={{ height: 'auto' }}
+                className="h-5 w-auto object-contain"
+              />
+            </div>
+            <a
+              href={LINKS.tripadvisor}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-xs font-semibold text-green-600 hover:text-green-700 hover:underline"
+            >
+              Profil
+            </a>
+          </div>
+
+          <div className="mt-6 grid gap-4">
+            <div className="flex items-center justify-between rounded-xl bg-zinc-50 p-4">
+              <p className="text-sm font-medium text-zinc-600">Ocena gości</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xl font-black text-zinc-900">{tripadvisor.rating?.score?.toFixed(1) || 'N/A'}</p>
+                <span className="text-xs font-bold text-zinc-400">/ 10</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-zinc-100 p-3">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Lokalizacja</p>
+                <p className="mt-1 text-sm font-bold text-zinc-900">{tripadvisor.rating?.location || '4.1'}</p>
+              </div>
+              <div className="rounded-xl border border-zinc-100 p-3">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Liczba opinii</p>
+                <p className="mt-1 text-sm font-bold text-zinc-900">{tripadvisor.rating?.reviews?.toLocaleString() || '0'}</p>
               </div>
             </div>
           </div>
@@ -210,7 +246,7 @@ export function BookingFeatures({ className = "" }: BookingFeaturesProps) {
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-black text-zinc-900 flex items-center gap-2">
             <span className="h-8 w-1 bg-blue-600 rounded-full"></span>
-            Najnowsze Opinie (via Booking.com)
+            Najnowsze Opinie (Booking & Agoda)
           </h3>
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
             3 najnowsze opinie
